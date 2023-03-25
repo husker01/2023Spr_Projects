@@ -1,12 +1,13 @@
 import random
 import copy
+import math
 
 
 class Sudoku:
 
-    def __init__(self):
+    def __init__(self, SIZE):
         # Define the size of the board
-        self.SIZE = 9
+        self.SIZE = SIZE
         # initialize the numbers to be removed
         self.num_to_remove = 0
 
@@ -15,27 +16,27 @@ class Sudoku:
 
     def select_difficulty(self, level):
         if level == 1:
-            self.num_to_remove = 40
+            self.num_to_remove = int(0.5 * self.SIZE ** 2)
         elif level == 2:
-            self.num_to_remove = 50
+            self.num_to_remove = int(0.6 * self.SIZE ** 2)
         elif level == 3:
-            self.num_to_remove = 55
+            self.num_to_remove = int(0.67 * self.SIZE ** 2)
         return self.num_to_remove
 
     # print the board to the player
     def print_board(self, board):
-        print("- - - - - - - - - - - - -")
+        print("- " * self.SIZE + "- " * int(math.sqrt(self.SIZE)))
         for i in range(self.SIZE):
-            if i % 3 == 0 and i != 0:
-                print("- - - - - - - - - - - - -")
+            if i % int(math.sqrt(self.SIZE)) == 0 and i != 0:
+                print("- " * self.SIZE + "- " * int(math.sqrt(self.SIZE)))
             for j in range(self.SIZE):
-                if j % 3 == 0 and j != 0:
+                if j % int(math.sqrt(self.SIZE)) == 0 and j != 0:
                     print(" | ", end="")
-                if j == 8:
+                if j == self.SIZE - 1:
                     print(board[i][j])
                 else:
                     print(str(board[i][j]) + " ", end="")
-        print("- - - - - - - - - - - - -")
+        print("- " * self.SIZE + "- " * int(math.sqrt(self.SIZE)))
         print("\n")
 
     # Function to check if a number can be placed in a given cell
@@ -44,21 +45,20 @@ class Sudoku:
         for i in range(self.SIZE):
             if board[row][i] == num or board[i][col] == num:
                 return False
-        # Check if the number is already present in the 3x3 subgrid
-        sub_row = (row // 3) * 3
-        sub_col = (col // 3) * 3
-        for i in range(sub_row, sub_row + 3):
-            for j in range(sub_col, sub_col + 3):
+        # Check if the number is already present in the subgrid
+        sub_row = (row // int(math.sqrt(self.SIZE))) * int(math.sqrt(self.SIZE))
+        sub_col = (col // int(math.sqrt(self.SIZE))) * int(math.sqrt(self.SIZE))
+        for i in range(sub_row, sub_row + int(math.sqrt(self.SIZE))):
+            for j in range(sub_col, sub_col + int(math.sqrt(self.SIZE))):
                 if board[i][j] == num:
                     return False
         # If the number can be placed in the cell, return True
         return True
 
     # find empty cell
-
     def find_empty(self, board):
-        for i in range(9):
-            for j in range(9):
+        for i in range(self.SIZE):
+            for j in range(self.SIZE):
                 if board[i][j] == 0:
                     return i, j
         return None
@@ -69,7 +69,9 @@ class Sudoku:
             return True
         else:
             row, col = find
-        numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        numbers = []
+        for i in range(1, self.SIZE + 1):
+            numbers.append(i)
         random.shuffle(numbers)
         # Try placing numbers from 1 to 9 in the cell
         for num in numbers:
@@ -115,17 +117,13 @@ class Sudoku:
     # Function to remove numbers from the Sudoku board while ensuring unique solution
     def remove_numbers(self, board, num_to_remove):
         cells = [(i, j) for i in range(self.SIZE) for j in range(self.SIZE)]
-
         random.shuffle(cells)
-
         for cell in cells:
             row, col = cell
             num = board[row][col]
             board[row][col] = 0
-
             board_copy = [row[:] for row in board]
             solutions = self.solve(board_copy, count_solutions=True)
-
             if solutions != 1:
                 board[row][col] = num
             else:
@@ -133,6 +131,7 @@ class Sudoku:
 
             if num_to_remove == 0:
                 break
+
         return board
 
     # ----------------------------------------------------------------------------------------
@@ -166,11 +165,6 @@ class Sudoku:
 
         # New game starts here
         print("Welcome to the Sudoku game!\n")
-
-        # select the size of the sudoku game
-        print("Please choose the size of the sudoku (size x size")
-
-        self.SIZE = int(input("Enter Size"))
 
         # select game difficulty
         print("Please choose the level of difficulty")
@@ -217,5 +211,8 @@ class Sudoku:
 
 
 if __name__ == '__main__':
-    game = Sudoku()
+    # select the size of the sudoku game
+    print("Please choose the size of the sudoku (size x size)")
+    SIZE = int(input("Enter Size 4: (2x2) or 9: (3x3) or 16: (4x4):"))
+    game = Sudoku(SIZE)
     game.play_game()
