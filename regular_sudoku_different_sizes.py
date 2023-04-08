@@ -168,7 +168,7 @@ class Sudoku:
 
         # select game difficulty
         print("Please choose the level of difficulty")
-        print("1-easy (40 cells unknown), 2-medium (50 cells unknown), 3-hard (55 cells unknown)")
+        print("1-easy (50% cells unknown), 2-medium (60% cells unknown), 3-hard (67% cells unknown)")
         level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard): "))
         self.select_difficulty(level)
 
@@ -189,6 +189,11 @@ class Sudoku:
         print("Enter the number for the empty cells or 0 to leave it empty")
         print("\n")
         self.print_board(puzzle_board)
+        empty_cell_coordinate = []
+        for i in range(len(puzzle_board[0])):
+            for j in range(len(puzzle_board)):
+                if puzzle_board[i][j] == 0:
+                    empty_cell_coordinate.append((i, j))
         while True:
             try:
                 row = int(input("Enter row (1-9): ")) - 1
@@ -198,7 +203,7 @@ class Sudoku:
                     raise ValueError
                 if row < 0 or row > 8 or col < 0 or col > 8:
                     raise ValueError
-                if puzzle_board[row][col] == 0:
+                if puzzle_board[row][col] == 0 or (row,col) in empty_cell_coordinate:
                     puzzle_board[row][col] = num
                     self.print_board(puzzle_board)
                 else:
@@ -213,6 +218,6 @@ class Sudoku:
 if __name__ == '__main__':
     # select the size of the sudoku game
     print("Please choose the size of the sudoku (size x size)")
-    SIZE = int(input("Enter Size 4: (2x2) or 9: (3x3) or 16: (4x4):"))
+    SIZE = int(input("Enter Size 4: (4x4) or 9: (9x9) or 16: (16x16):"))
     game = Sudoku(SIZE)
     game.play_game()
