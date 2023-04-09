@@ -3,7 +3,6 @@ from sat_utils import solve_one, one_of, basic_fact, solve_all
 from sys import intern
 from itertools import chain
 import random
-from pprint import pprint
 
 
 def SudokuSolver(SIZE, num_to_remove, board):
@@ -63,7 +62,6 @@ def SudokuSolver(SIZE, num_to_remove, board):
     # Groups:  rows   + columns           + subsquares
     groups = table[:] + list(zip(*table)) + list(subsquares.values())
 
-    del grid, subsquares, table     # analysis requires only:  points, values, groups
 
     def comb(point, value):
         'Format a fact (a value assigned to a given point)'
@@ -77,18 +75,6 @@ def SudokuSolver(SIZE, num_to_remove, board):
         'Convert a list of facts to a string in row major order with blanks for unknowns'
         point_to_value = dict(map(str.split, facts))
         return ''.join(point_to_value.get(point, ' ') for point in points)
-
-
-    # def remove_random_cell(board):
-    #     row = random.randint(0, len(board) - 1)
-    #     col = random.randint(0, len(board[0]) - 1)
-    #     while board[row][col] == 0:
-    #         row = random.randint(0, len(board) - 1)
-    #         col = random.randint(0, len(board[0]) - 1)
-    #     # num = board[row][col]
-    #     new_board = copy.deepcopy(board)
-    #     new_board[row][col] = 0
-    #     return new_board
 
 
     def remove_cell_from_board(board, num_to_remove):
@@ -124,21 +110,25 @@ def SudokuSolver(SIZE, num_to_remove, board):
             cnf += basic_fact(known)
 
         # solve it and display the results
-        solutions = len(solve_all(cnf))
-        return solutions
+        num_solutions = len(solve_all(cnf))
+        solutions = solve_all(cnf)
+        return num_solutions, solutions
 
 
     def generate_puzzle():
+        solution_board = []
         puzzle_board = remove_cell_from_board(board, num_to_remove)
-        sol = solver(puzzle_board)
+        sol, solutions = solver(puzzle_board)
         while sol != 1:
             puzzle_board = remove_cell_from_board(board, num_to_remove)
-            sol = solver(puzzle_board)
-        return puzzle_board
+            sol, solutions = solver(puzzle_board)
+        # display the solution board by the solver
+        for num, item in enumerate(solutions[0]):
+            if SIZE == 16:
+                if num % 16 == 0:
+                    solution_board.append([])
+                solution_board[-1].append(item.split(' ')[1])
+        return puzzle_board, solution_board
 
     return generate_puzzle()
 
-num_to_remove = 1
-SIZE = 4
-board = [[2, 4, 1, 3], [3, 1, 2, 4], [1, 3, 4, 2], [4, 2, 3, 1]]
-print(SudokuSolver(SIZE, num_to_remove, board))

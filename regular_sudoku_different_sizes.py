@@ -1,12 +1,10 @@
 import random
 import copy
 import math
-import sudoku_solver
-from sat_utils import solve_one, one_of, basic_fact, solve_all
-from sys import intern
-from itertools import chain
-class Sudoku:
+from sudoku_solver import SudokuSolver
 
+
+class Sudoku:
     def __init__(self, SIZE):
         # Define the size of the board
         self.SIZE = SIZE
@@ -95,52 +93,7 @@ class Sudoku:
         return board
 
     # ----------------------------------------------------------------------------------------
-    # removing the numbers to create the puzzle board
-
-    # Function to solve the Sudoku board using backtracking and return the number of solutions
-
-
-    def solve(self, board, count_solutions=False):
-        for row in range(self.SIZE):
-            for col in range(self.SIZE):
-                if board[row][col] == 0:
-                    solutions = 0
-                    for num in range(1, self.SIZE + 1):
-                        if self.is_valid(board, row, col, num):
-                            board[row][col] = num
-                            # Recursively solve the board
-                            if count_solutions:
-                                solutions += self.solve(board, count_solutions)
-                            elif self.solve(board):
-                                return 1
-                            # If no solution is found, backtrack and try the next number
-                            board[row][col] = 0
-                    return solutions if count_solutions else 0
-        return 1 if count_solutions else 0
-
-    # Function to remove numbers from the Sudoku board while ensuring unique solution
-    def remove_numbers(self, board, num_to_remove):
-        cells = [(i, j) for i in range(self.SIZE) for j in range(self.SIZE)]
-        random.shuffle(cells)
-        for cell in cells:
-            row, col = cell
-            num = board[row][col]
-            board[row][col] = 0
-            board_copy = [row[:] for row in board]
-            solutions = self.solve(board_copy, count_solutions=True)
-            if solutions != 1:
-                board[row][col] = num
-            else:
-                num_to_remove -= 1
-
-            if num_to_remove == 0:
-                break
-
-        return board
-
-    # ----------------------------------------------------------------------------------------
     # Build a solver to solve the puzzle board
-
     def puzzle_solver(self, puzzle_board):
         solver_board = copy.deepcopy(puzzle_board)
         self.generate(solver_board)
@@ -176,15 +129,18 @@ class Sudoku:
         level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard): "))
         self.select_difficulty(level)
 
+        # ----------------------------------------------------------------------------------------
         # remove numbers to create the puzzle board
-        puzzle_board = self.remove_numbers(copy_board, self.num_to_remove)
+
+        puzzle_board, solutions = SudokuSolver(self.SIZE, self.num_to_remove, copy_board)
         print('puzzle board')
         self.print_board(puzzle_board)
-
-        # implement the solver engine to solve the puzzle
+        # ----------------------------------------------------------------------------------------
+        # implement the solver to solve the puzzle
         solver_solution_board = self.puzzle_solver(puzzle_board)
         print('solver_solution')
-        self.print_board(solver_solution_board)
+
+        self.print_board(solutions)
 
         # check if the solver engine matches the original valid board
         self.check_solver_solution(solver_solution_board, board, show=True)
@@ -211,7 +167,7 @@ class Sudoku:
                     puzzle_board[row][col] = num
                     self.print_board(puzzle_board)
                 else:
-                    print("This cell is not empty. Try again.")
+                    print("This cell is not empty and has a fixed number. Try again.")
             except ValueError:
                 print("Invalid input. Try again.")
             if puzzle_board == solver_solution_board:
