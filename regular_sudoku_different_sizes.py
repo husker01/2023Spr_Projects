@@ -1,6 +1,7 @@
 import random
 import copy
 import math
+import sudoku_solver
 from sat_utils import solve_one, one_of, basic_fact, solve_all
 from sys import intern
 from itertools import chain
