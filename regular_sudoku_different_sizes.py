@@ -98,7 +98,7 @@ class Sudoku:
 
     # Function to solve the Sudoku board using backtracking and return the number of solutions
 
-    
+
     def solve(self, board, count_solutions=False):
         for row in range(self.SIZE):
             for col in range(self.SIZE):
