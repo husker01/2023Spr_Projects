@@ -4,6 +4,7 @@ import math
 from sudoku_solver import SudokuSolver
 
 
+
 class Sudoku:
     def __init__(self, SIZE):
         # Define the size of the board
