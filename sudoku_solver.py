@@ -125,10 +125,9 @@ def SudokuSolver(SIZE, num_to_remove, board):
             sol, solutions = solver(puzzle_board)
         # display the solution board by the solver
         for num, item in enumerate(solutions[0]):
-            if SIZE == 16:
-                if num % 16 == 0:
-                    solution_board.append([])
-                solution_board[-1].append(item.split(' ')[1])
+            if num % SIZE == 0:
+                solution_board.append([])
+            solution_board[-1].append(item.split(' ')[1])
         return puzzle_board, solution_board
 
     return generate_puzzle()
