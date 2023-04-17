@@ -127,7 +127,7 @@ def SudokuSolver(SIZE, num_to_remove, board):
         for num, item in enumerate(solutions[0]):
             if num % SIZE == 0:
                 solution_board.append([])
-            solution_board[-1].append(item.split(' ')[1])
+            solution_board[-1].append(int(item.split(' ')[1]))
         return puzzle_board, solution_board
 
     return generate_puzzle()
