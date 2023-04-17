@@ -210,8 +210,9 @@ class SudokuGUI:
                 else:
                     text_color = (0, 0, 0)
                 if cell_value != 0:
-                    num_text = self.font.render(
-                        str(cell_value), True, text_color)
+                    # Convert values 10-16 to hexadecimal characters
+                    cell_text = hex(cell_value)[2:].upper()
+                    num_text = self.font.render(cell_text, True, text_color)
                     x = col * self.cell_size + self.cell_size // 3
                     y = row * self.cell_size + self.cell_size // 5
                     self.screen.blit(num_text, (x, y))
@@ -245,12 +246,22 @@ class SudokuGUI:
             print(f"Clicked cell: ({row + 1}, {col + 1})")
 
     def handle_key(self, key):
-        if self.selected_cell is not None and pygame.key.name(key) in [str(i) for i in range(10)]:
-            row, col = self.selected_cell
-            if (row, col) in self.sudoku.empty_cell_coordinate:
+        if self.selected_cell is not None:
+            key_name = pygame.key.name(key)
+            input_values = [str(i) for i in range(1, 17)]
 
-                self.sudoku.puzzle_board[row][col] = int(pygame.key.name(key))
-                self.draw_board()
+            # Check if the key name is in the range 1-9 or if it is a, b, c, d, e or f
+            if key_name in input_values or key_name in ['a', 'b', 'c', 'd', 'e', 'f']:
+                row, col = self.selected_cell
+                if (row, col) in self.sudoku.empty_cell_coordinate:
+                    # Convert the input value to an integer, handling letters for values 10-16
+                    if key_name in input_values:
+                        value = int(key_name)
+                    else:
+                        value = int(key_name, 16)
+
+                    self.sudoku.puzzle_board[row][col] = value
+                    self.draw_board()
 
     def run(self):
         running = True
