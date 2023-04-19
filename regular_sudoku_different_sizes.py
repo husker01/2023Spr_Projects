@@ -37,10 +37,13 @@ class Sudoku:
             for j in range(self.SIZE):
                 if j % int(math.sqrt(self.SIZE)) == 0 and j != 0:
                     print(" | ", end="")
+
                 if j == self.SIZE - 1:
                     print(board[i][j])
+
                 else:
                     print(str(board[i][j]) + " ", end="")
+                    # print("i=" + str(i) + " j=" + str(j))
         print("- " * self.SIZE + "- " * int(math.sqrt(self.SIZE)))
         print("\n")
 
@@ -89,6 +92,34 @@ class Sudoku:
                 board[row][col] = 0
         return False
 
+
+    def add_sandwich(self, board):
+        horiz_list, vert_list = [], []
+        for i in range(0, self.SIZE):
+            horiz_sum, vert_sum = 0, 0
+            is_horiz_start = False
+            is_vert_start = False
+            for j in range(0, self.SIZE):
+                if (board[i][j] == 1 or board[i][j] == self.SIZE) and not is_horiz_start:
+                    is_horiz_start = True
+                elif (board[i][j] == 1 or board[i][j] == self.SIZE) and is_horiz_start:
+                    is_horiz_start = False
+                elif is_horiz_start:
+                    horiz_sum += board[i][j]
+
+                if (board[j][i] == 1 or board[j][i] == self.SIZE) and not is_vert_start:
+                    is_vert_start = True
+                elif (board[j][i] == 1 or board[j][i] == self.SIZE) and is_vert_start:
+                    is_vert_start = False
+                elif is_vert_start:
+                    vert_sum += board[j][i]
+            horiz_list.append(horiz_sum)
+            vert_list.append(vert_sum)
+        print("---------Sandwich----------------")
+        print(horiz_list, vert_list)
+        print("-----------------------------------")
+
+
     # generate the complete and valid board
     def generate_random_solution(self):
         # generate the all 0 board
@@ -96,6 +127,7 @@ class Sudoku:
         # generate the valid board
         self.generate(board)
         return board
+
 
     # ----------------------------------------------------------------------------------------
     # Build a solver to solve the puzzle board
