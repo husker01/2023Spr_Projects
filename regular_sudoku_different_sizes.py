@@ -5,6 +5,7 @@ from sudoku_solver import SudokuSolver
 import pygame
 import sys
 
+
 class Sudoku:
     def __init__(self, SIZE, level):
         # Define the size of the board
@@ -14,18 +15,29 @@ class Sudoku:
         self.empty_cell_coordinate = []
         self.num_to_remove = 0
         self.board = self.generate_random_solution()
-        self.puzzle_board, self.solution = self.play_game()
 
+        self.sandwich_horizontal, self.sandwich_vertical, self.thermos = [], [], []
+
+        if self.level >= 3:
+            self.sandwich_horizontal, self.sandwich_vertical = self.add_sandwich()
+            self.thermos = self.add_thermo()
+        else:
+            self.sandwich_horizontal, self.sandwich_vertical, self.thermos = [], [], []
+        self.puzzle_board, self.solution = self.play_game()
     # ------------------------------------------------------------------------------------------
     # generate the complete and valid sudoku board
 
     def select_difficulty(self, level):
         if level == 1:
-            self.num_to_remove = int(0.5 * self.SIZE ** 2)
+            self.num_to_remove = int(0.5 * (self.SIZE ** 2))
         elif level == 2:
-            self.num_to_remove = int(0.6 * self.SIZE ** 2)
+            self.num_to_remove = int(0.55 * (self.SIZE ** 2))
         elif level == 3:
-            self.num_to_remove = int(0.67 * self.SIZE ** 2)
+            self.num_to_remove = int(0.6 * (self.SIZE ** 2))
+        elif level == 4:
+            self.num_to_remove = int(0.65 * (self.SIZE ** 2))
+        elif level == 5:
+            self.num_to_remove = int(0.68 * (self.SIZE ** 2))
         return self.num_to_remove
 
     # print the board to the player
@@ -71,6 +83,65 @@ class Sudoku:
                     return i, j
         return None
 
+    def add_sandwich(self):
+        horiz_list, vert_list = [], []
+        for i in range(0, self.SIZE):
+            horiz_sum, vert_sum = 0, 0
+            is_horiz_start = False
+            is_vert_start = False
+            for j in range(0, self.SIZE):
+                if (self.board[i][j] == 1 or self.board[i][j] == self.SIZE) and not is_horiz_start:
+                    is_horiz_start = True
+                elif (self.board[i][j] == 1 or self.board[i][j] == self.SIZE) and is_horiz_start:
+                    is_horiz_start = False
+                elif is_horiz_start:
+                    horiz_sum += self.board[i][j]
+
+                if (self.board[j][i] == 1 or self.board[j][i] == self.SIZE) and not is_vert_start:
+                    is_vert_start = True
+                elif (self.board[j][i] == 1 or self.board[j][i] == self.SIZE) and is_vert_start:
+                    is_vert_start = False
+                elif is_vert_start:
+                    vert_sum += self.board[j][i]
+            horiz_list.append(horiz_sum)
+            vert_list.append(vert_sum)
+        print("---------Sandwich----------------")
+        print(horiz_list, vert_list)
+        print("-----------------------------------")
+        return horiz_list, vert_list
+
+    def add_thermo(self):
+        thermos_list = []
+
+        offsets = [[0, -1], [0, 1], [-1, 0], [1, 0], [1, 1], [-1, -1], [-1, 1], [1, -1]]
+        while len(thermos_list) != 2:
+            rand_row = random.randint(0, self.SIZE - 1)
+            rand_col = random.randint(0, self.SIZE - 1)
+            if self.board[rand_row][rand_col] == 1:
+                thermos = []
+                row, col = rand_row, rand_col
+                cur_value = self.board[row][col]
+                thermos.append((row, col))
+                while True:
+                    least_row, least_col, least_value = 0, 0, 0
+                    for offset in offsets:
+                        x1 = row + offset[0]
+                        y1 = col + offset[1]
+                        if x1 in range(0, self.SIZE) and y1 in range(0, self.SIZE) and self.board[x1][y1] > cur_value:
+                            if least_value == 0 or self.board[x1][y1] < least_value:
+                                least_row, least_col, least_value = x1, y1, self.board[x1][y1]
+                    if least_value != 0:
+                        cur_value = least_value
+                        row = least_row
+                        col = least_col
+                        thermos.append((row, col))
+                    else:
+                        if len(thermos) >= 4:
+                            thermos_list.append(thermos)
+                        break
+
+        return thermos_list
+
     def generate(self, board):
         find = self.find_empty(board)
         if not find:
@@ -92,7 +163,6 @@ class Sudoku:
                 board[row][col] = 0
         return False
 
-
     # generate the complete and valid board
     def generate_random_solution(self):
         # generate the all 0 board
@@ -100,7 +170,6 @@ class Sudoku:
         # generate the valid board
         self.generate(board)
         return board
-
 
     # ----------------------------------------------------------------------------------------
     # Build a solver to solve the puzzle board
@@ -125,10 +194,10 @@ class Sudoku:
 
     def play_game(self):
         # generate the valid board
-        board = self.generate_random_solution()
+        # self.board = self.generate_random_solution()
         print('valid and solved board, hidden to player')
-        self.print_board(board)
-        copy_board = copy.deepcopy(board)
+        self.print_board(self.board)
+        copy_board = copy.deepcopy(self.board)
 
         # New game starts here
         print("Welcome to the Sudoku game!\n")
@@ -140,7 +209,8 @@ class Sudoku:
         # ----------------------------------------------------------------------------------------
         # remove numbers to create the puzzle board
 
-        puzzle_board, solutions = SudokuSolver(self.SIZE, self.num_to_remove, copy_board)
+        puzzle_board, solutions = SudokuSolver(self.SIZE, self.num_to_remove, copy_board, self.sandwich_horizontal,
+                                               self.sandwich_vertical, self.thermos)
         for i in range(len(puzzle_board[0])):
             for j in range(len(puzzle_board)):
                 if puzzle_board[i][j] == 0:
@@ -155,7 +225,7 @@ class SudokuGUI:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-        self.cell_size = self.screen_height // sudoku.SIZE
+        self.cell_size = self.screen_height // (sudoku.SIZE + 1)
         self.font = pygame.font.Font(None, self.cell_size // 2)
         self.selected_cell = None
 
@@ -176,7 +246,6 @@ class SudokuGUI:
         self.screen.blit(self.new_game_text, (665, 230))
         self.screen.blit(self.quit_text, (685, 300))
 
-
     def highlight_cell(self, row, col):
         cell_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
         pygame.draw.rect(self.screen, (173, 216, 230), cell_rect, 0)
@@ -188,7 +257,7 @@ class SudokuGUI:
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         for i in range(self.sudoku.SIZE + 1):
-            line_thickness = 3 if i % int(self.sudoku.SIZE ** 0.5) == 0 else 1
+            line_thickness = 3 if i % int((self.sudoku.SIZE + 1) ** 0.5) == 0 else 1
             pygame.draw.line(
                 self.screen, (0, 0, 0),
                 (i * self.cell_size, 0),
@@ -214,13 +283,58 @@ class SudokuGUI:
                     text_color = (200, 0, 0)
                 else:
                     text_color = (0, 0, 0)
+
                 if cell_value != 0:
                     # Convert values 10-16 to hexadecimal characters
-                    cell_text = hex(cell_value)[2:].upper()
+                    # cell_text = hex(cell_value)[2:].upper()
+                    cell_text = format(cell_value, 'X')
                     num_text = self.font.render(cell_text, True, text_color)
                     x = col * self.cell_size + self.cell_size // 3
                     y = row * self.cell_size + self.cell_size // 5
                     self.screen.blit(num_text, (x, y))
+
+        if self.sudoku.sandwich_vertical and self.sudoku.sandwich_horizontal:
+            for i in range(0, self.sudoku.SIZE, 2):
+                cell_value1 = self.sudoku.sandwich_vertical[i]
+                call_value2 = self.sudoku.sandwich_horizontal[i]
+                text_color = (0, 0, 200)
+                cell_text1 = str(cell_value1)
+                cell_text2 = str(call_value2)
+                num_text1 = self.font.render(cell_text1, True, text_color)
+                num_text2 = self.font.render(cell_text2, True, text_color)
+                x1 = i * self.cell_size + self.cell_size // 3
+                y1 = self.sudoku.SIZE * self.cell_size + self.cell_size // 5
+                x2 = self.sudoku.SIZE * self.cell_size + self.cell_size // 3
+                y2 = i * self.cell_size + self.cell_size // 5
+                self.screen.blit(num_text1, (x1, y1))
+                self.screen.blit(num_text2, (x2, y2))
+
+        if self.sudoku.thermos:
+            for new_thermo in self.sudoku.thermos:
+                prev_x1, prev_y1 = 0, 0
+                for each_cell in new_thermo:
+                    factor_value = (self.sudoku.board[each_cell[0]][each_cell[1]]) * 20
+                    cell_rect = pygame.Rect(each_cell[1] * self.cell_size, each_cell[0] * self.cell_size,
+                                            self.cell_size, self.cell_size)
+                    # x1 = each_cell[0] * self.cell_size + self.cell_size // 3
+                    # y1 = each_cell[1] * self.cell_size + self.cell_size // 5
+                    x1, y1 = cell_rect.center
+                    # pygame.draw.rect(self.screen, (127-factor_value, 199-factor_value, 255-factor_value), cell_rect, 0)
+                    if each_cell == new_thermo[0]:
+                        pygame.draw.ellipse(self.screen, (150, 150, 150), cell_rect, 2)
+                        prev_x1, prev_y1 = cell_rect.center
+                    else:
+                        # pygame.draw.rect(self.screen, (200 - factor_value, 199 - factor_value, 255 - factor_value),
+                        #                  cell_rect, 0)
+                        pygame.draw.line(self.screen, (100, 100, 100), (prev_x1, prev_y1), (x1, y1), 2)
+                        prev_x1, prev_y1 = cell_rect.center
+                    # elif prev_y1 == each_cell[1] and (prev_x1 + 1 == each_cell[0] or prev_x1 - 1 == each_cell[0]):
+                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1, y1-10), (x1, y1+10), 5)
+                    # elif prev_x1 == each_cell[0] and (prev_y1 + 1 == each_cell[1] or prev_y1 - 1 == each_cell[1]):
+                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1-10, y1), (x1+10, y1), 5)
+                    # else:
+                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1-10, y1 - 10), (x1+10, y1 + 10), 5)
+
         self.draw_buttons()
         pygame.display.flip()
 
@@ -236,6 +350,7 @@ class SudokuGUI:
         self.selected_cell = None
         # Redraw the board with the new puzzle
         self.draw_board()
+
     def handle_click(self, mouse_x, mouse_y):
         row, col = self.get_cell_from_mouse(mouse_x, mouse_y)
         if self.new_game_button.collidepoint(mouse_x, mouse_y):
@@ -303,8 +418,8 @@ if __name__ == '__main__':
     print("Please choose the size of the sudoku (size x size)")
     SIZE = int(input("Enter Size 4: (4x4) or 9: (9x9) or 16: (16x16):"))
     print("Please choose the level of difficulty")
-    print("1-easy (50% cells unknown), 2-medium (60% cells unknown), 3-hard (67% cells unknown)")
-    level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard): "))
+    print("1-Easy (50% cells unknown), 2-Medium (55% cells unknown), 3-Hard (60% cells unknown), "
+          "4-Expert (65% cells unknown), 5-Evil (70% cells unknown)")
+    level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard, 4-Expert, 5-Evil): "))
     sudoku = Sudoku(SIZE, level)
     gui = SudokuGUI(sudoku)
-
