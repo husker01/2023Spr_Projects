@@ -9,7 +9,7 @@ class Sudoku:
         self.SIZE = 9
         # initialize the numbers to be removed
         self.num_to_remove = 0
-
+        self.sandwich_horizontal, self.sandwich_vertical, self.thermos = [], [], []
     # ------------------------------------------------------------------------------------------
     # generate the complete and valid sudoku board
 
