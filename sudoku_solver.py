@@ -1,6 +1,5 @@
 import copy
 import itertools
-import numpy as np
 from sat_utils import *
 from sys import intern
 from itertools import chain
