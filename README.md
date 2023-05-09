@@ -9,3 +9,17 @@
 
 ## Thermos rules:
 #### For thermos we display the patterns where the numbers are in ascending order. The initial number will always be 1. The initial cell is represented as a circle or bulb and then a line is extended from the initial bulb. The value of the number always increases along the line. The thermos hint is provided only for the boards with difficulty 3 and above. Since 1 and 2 difficulty can be solved without the thermos hints
+
+## Targeted Algorithm Analysis:
+
+#### We have used lists to store both the solved and unsolved puzzle board. This choice was made since the lists are easier to traverse and didn't need any overhead computation.
+
+#### For solver, we are using the SAT solver with CNF rules. The sat solver works incredibly faster for sudoku since the rules of sudoku can be easily converted to CNF rules. One of the difficulty we faced is to integrate the sandwich rules into the SAT solver. As a workaround, we have different method which checks for sandwich rules after the SAT solver outputs the solved board. 
+
+
+### Runtime complexity Analysis
+#### The Big Omega analysis for the solver is Omega(1) since the first solution may be the correct solution for the solver. 
+
+#### The Big Theta analysis for the solver is Theta(m*m) where m is the number of rows in the board. 
+
+#### The Big O analysis for the board is O(infinity) where the board may produce the puzzle boards infinitely.

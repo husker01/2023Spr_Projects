@@ -211,9 +211,9 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
     def generate_puzzle():
         """
         Generates the puzzle board by emptying the number of cells as per the difficulty level. Then the puzzle board
-        generated is solved using the solver. If there are more than 1 solution, then the board is looped to check
-        if all the CNF rules satisfies. If one of the rules doesn't then that solution is discarded and the next
-        solution is checked, until we arrive at a single solution.
+        generated is solved using the solver. If there are more than 1 solution, then the board is discarded and we
+        generate a puzzle board with different removed numbers and check for the number of solutions. This process is
+        repeated until we get a puzzle board with only onw solution.
         :return: The puzzle board for the user and the solution board for reference
 
         Big O Analysis:
@@ -222,11 +222,13 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         """
         solution_board = []
         sol, solutions = 0, []
-        puzzle_board = remove_cell_from_board(board, num_to_remove)
-        sol, solutions = solver(puzzle_board)
+        # puzzle_board = remove_cell_from_board(board, num_to_remove)
+        # sol, solutions = solver(puzzle_board)
+        # print('solutions found: ', sol)
         while sol != 1:
             puzzle_board = remove_cell_from_board(board, num_to_remove)
             sol, solutions = solver(puzzle_board)
+            print('solutions remaining to be solved: ', sol)
         # display the solution board by the solver
         for num, item in enumerate(solutions[0]):
             if num % SIZE == 0:
