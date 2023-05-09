@@ -45,22 +45,23 @@ def solve_all(symcnf, include_neg=False):
 def solve_one(symcnf, include_neg=False):
     return next(itersolve(symcnf, include_neg))
 
-def generate_possible_values(puzzle, size):
+def generate_possible_values(puzzle, size, pts):
     """
     Generate a dictionary of all possible values for each cell in the puzzle,
     based on the given constraints.
     """
     possible_values = {}
     for row, col in product(range(size), repeat=2):
+        value2 = pts[((row + 1) * (col + 1)) - 1]
         if puzzle[row][col] == 0:
             # If the cell is empty, generate a set of all possible values.
             row_values = set(puzzle[row])
             col_values = set(puzzle[i][col] for i in range(size))
-            box_values = set(puzzle[i][j] for i, j in product(range(row // math.sqrt(size) * math.sqrt(size), row // math.sqrt(size) * 3 + 3), range(col // 3 * 3, col // 3 * 3 + 3)))
-            possible_values[(row, col)] = set(range(1, 10)) - row_values - col_values - box_values
+            box_values = set(puzzle[i][j] for i, j in product(range(row // 3 * 3, row // 3 * 3 + 3), range(col // 3 * 3, col // 3 * 3 + 3)))
+            possible_values[value2] = set(range(1, 10)) - row_values - col_values - box_values
         else:
             # If the cell is already filled, set its possible values to a singleton set containing the given value.
-            possible_values[(row, col)] = [puzzle[row][col]]
+            possible_values[value2] = [puzzle[row][col]]
     return possible_values
 
 ############### Support for Building CNFs ##########################

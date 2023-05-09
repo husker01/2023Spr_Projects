@@ -78,6 +78,12 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         return ''.join(point_to_value.get(point, ' ') for point in points)
 
     def remove_cell_from_board(board, num_to_remove):
+        """
+        Removes the number of cells as per the user chosen difficulty level
+        :param board: The solved board
+        :param num_to_remove: Number of cells to be removed
+        :return: The puzzle board
+        """
         new_board = copy.deepcopy(board)
         for i in range(num_to_remove):
             row = random.randint(0, len(board) - 1)
@@ -89,6 +95,18 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         return new_board
 
     def solver(board):
+        """
+        The method which generates the CNF rules for the puzzle. Using the solve all method from sat_utils.py, each and
+        every CNF rule is checked. If one of the rule doesn't satisfy then that board is discarded and next board is
+        checked for validity until we find a single solution.
+        :param board: The solution board
+        :return: The solution boards and the number of solutions
+
+        Big O Analysis:
+            Big O can be calculated as O((m) + (3*m) + (n)) where m is the size of the board and n is the numbers
+            already filled in the cell
+                O(4m + n) => O(m+n)
+        """
         flatten_board_chr = ''
         flatten_board = list(map(str, list(chain.from_iterable(board))))
         for item in flatten_board:
@@ -98,9 +116,11 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
 
         # Create Boolean variables for each cell
         # cells = [[solver.new_var() for j in range(SIZE)] for i in range(SIZE)]
-        # poss_values = generate_possible_values(board, SIZE)
+        # poss_values = generate_possible_values(board, SIZE, points)
         # for value in poss_values:
-        #     value2 = value
+        #     value2 = points[((value[0] + 1)*(value[1] + 1))-1]
+        # for point in poss_values:
+        #     cnf += one_of(comb(point, value) for value in poss_values[point])
         # each point assigned exactly one value
         for point in points:
             cnf += one_of(comb(point, value) for value in values)
@@ -143,6 +163,11 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
                 clause = list
 
     def validate_sandwich(sand_board):
+        """
+        The method to validate the sandwich hints for the solved board
+        :param sand_board: The solution board
+        :return: True if the condition satisfies else False
+        """
         horiz_list, vert_list = [], []
         for i in range(0, SIZE):
             horiz_sum, vert_sum = 0, 0
@@ -170,6 +195,11 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         return False
 
     def validate_thermos(thermo_board):
+        """
+        The method to validate thermos hints.
+        :param thermo_board: The solution board
+        :return: True if the condition satisfies else False
+        """
         prev_value = 0
         for new_thermo in thermos:
             for each_cell in new_thermo:
@@ -180,10 +210,21 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         return True
 
     def generate_puzzle():
+        """
+        Generates the puzzle board by emptying the number of cells as per the difficulty level. Then the puzzle board
+        generated is solved using the solver. If there are more than 1 solution, then the board is looped to check
+        if all the CNF rules satisfies. If one of the rules doesn't then that solution is discarded and the next
+        solution is checked, until we arrive at a single solution.
+        :return: The puzzle board for the user and the solution board for reference
+
+        Big O Analysis:
+            The Big O can be calculated as O(infinite) since in the worst case, and as the difficulty increases, the
+            loop may execute infinitely to solve the boards
+        """
         solution_board = []
         sol, solutions = 0, []
-        # puzzle_board = remove_cell_from_board(board, num_to_remove)
-        # sol, solutions = solver(puzzle_board)
+        puzzle_board = remove_cell_from_board(board, num_to_remove)
+        sol, solutions = solver(puzzle_board)
         while sol != 1:
             puzzle_board = remove_cell_from_board(board, num_to_remove)
             sol, solutions = solver(puzzle_board)

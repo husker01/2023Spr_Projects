@@ -28,6 +28,13 @@ class Sudoku:
     # generate the complete and valid sudoku board
 
     def select_difficulty(self, level):
+        """
+        This method sets the difficulty level by removing percentage of numbers from the puzzle board.
+        :param level: The level of difficulty i.e. integer from 1-5
+        :return: returns the percentage of numbers to remove
+
+        Big O Analysis: The analysis will be O(1) since there are no loops and a if else statement.
+        """
         if level == 1:
             self.num_to_remove = int(0.5 * (self.SIZE ** 2))
         elif level == 2:
@@ -37,11 +44,18 @@ class Sudoku:
         elif level == 4:
             self.num_to_remove = int(0.65 * (self.SIZE ** 2))
         elif level == 5:
-            self.num_to_remove = int(0.68 * (self.SIZE ** 2))
+            self.num_to_remove = int(0.67 * (self.SIZE ** 2))
         return self.num_to_remove
 
     # print the board to the player
     def print_board(self, board):
+        """
+        This method prints the board in a list format to the grid format
+        :param board: The list of numbers in the board
+        :return: NA
+
+        Big O analysis: The Big O will be O(m*n) where m and n are the number of rows and columns
+        """
         print("- " * self.SIZE + "- " * int(math.sqrt(self.SIZE)))
         for i in range(self.SIZE):
             if i % int(math.sqrt(self.SIZE)) == 0 and i != 0:
@@ -61,6 +75,17 @@ class Sudoku:
 
     # Function to check if a number can be placed in a given cell
     def is_valid(self, board, row, col, num):
+        """
+        The method checks if all the conditions are satisfied for the classic sudoku
+        :param board: The puzzle board in list format
+        :param row: The rows
+        :param col: The columns
+        :param num: The value in the given cell
+        :return: return True if the conditions satisfy, else False
+
+        Big O analysis: The Big O for the given method is O(m + (m*n)) which can be simplified as
+            Big O(m*n). Here m and n are row and column sizes respectively
+        """
         # Check if the number is already present in the row or column
         for i in range(self.SIZE):
             if board[row][i] == num or board[i][col] == num:
@@ -77,6 +102,14 @@ class Sudoku:
 
     # find empty cell
     def find_empty(self, board):
+        """
+        This method checks if there exists a value in specific cell
+        :param board: The puzzle board in list format
+        :return: True if the cell is empty else False
+
+        Big O Analysis:
+            The Big O can be calculated as O(m*n) where m and n are row column sizes respectively
+        """
         for i in range(self.SIZE):
             for j in range(self.SIZE):
                 if board[i][j] == 0:
@@ -84,6 +117,13 @@ class Sudoku:
         return None
 
     def add_sandwich(self):
+        """
+        This method adds the sandwich variant my adding the values in between 1 and 9 in rows and columns.
+        :return: returns the sum for horizontal (column sum) and vertical lists (row sum)
+
+        Big O Analysis:
+            The Big O can be calculated as O(m*n) where m and n are row column sizes respectively
+        """
         horiz_list, vert_list = [], []
         for i in range(0, self.SIZE):
             horiz_sum, vert_sum = 0, 0
@@ -111,6 +151,15 @@ class Sudoku:
         return horiz_list, vert_list
 
     def add_thermo(self):
+        """
+        This method finds the thermo (numbers in increasing order) pattern in a given puzzle board
+        :return: returns the 2 found patterns
+
+        Big O Analysis:
+            The Big O can be calculated as O(2* (infinity) * 8) where 2 is the number of patterns to be found and
+            8 is the number of offsets in the 8 directions to find the pattern.
+            This can be simplified as
+        """
         thermos_list = []
 
         offsets = [[0, -1], [0, 1], [-1, 0], [1, 0], [1, 1], [-1, -1], [-1, 1], [1, -1]]
@@ -130,19 +179,28 @@ class Sudoku:
                         if x1 in range(0, self.SIZE) and y1 in range(0, self.SIZE) and self.board[x1][y1] > cur_value:
                             if least_value == 0 or self.board[x1][y1] < least_value:
                                 least_row, least_col, least_value = x1, y1, self.board[x1][y1]
-                    if least_value != 0:
+                    if least_value != 0 and (not thermos_list or (least_row, least_col) not in thermos_list[0]):
                         cur_value = least_value
                         row = least_row
                         col = least_col
                         thermos.append((row, col))
                     else:
-                        if len(thermos) >= 4:
+                        if len(thermos) > 3:
                             thermos_list.append(thermos)
                         break
 
         return thermos_list
 
     def generate(self, board):
+        """
+        Generates the solved puzzle board
+        :param board: The initial state of board
+        :return: returns True if successfully solves the generated board or else False
+
+        Big O Analysis:
+            The Big O can be calculated as O((m) + (m^m)). We can simplify this as
+            Big O (m ^ m) i.e., since recursive function in a for loop, it calls m times for each loop
+        """
         find = self.find_empty(board)
         if not find:
             return True
@@ -165,6 +223,10 @@ class Sudoku:
 
     # generate the complete and valid board
     def generate_random_solution(self):
+        """
+        Generates a complete and a solved board
+        :return: returns the valid board
+        """
         # generate the all 0 board
         board = [[0 for x in range(self.SIZE)] for y in range(self.SIZE)]
         # generate the valid board
@@ -174,6 +236,11 @@ class Sudoku:
     # ----------------------------------------------------------------------------------------
     # Build a solver to solve the puzzle board
     def puzzle_solver(self, puzzle_board):
+        """
+        Builds a solver to solve the puzzle board
+        :param puzzle_board: The puzzle board
+        :return: The solved board
+        """
         solver_board = copy.deepcopy(puzzle_board)
         self.generate(solver_board)
         return solver_board
@@ -193,6 +260,13 @@ class Sudoku:
     # player User Interface for the Sudoku game
 
     def play_game(self):
+        """
+        This method is used to play a game of sudoku. The method initializes a board.
+        After initialization, user inputs are taken to determine the size of board and the difficulty level.
+        According to the user inputs, the puzzle board and solver is used to check if the puzzle board has exactly
+        one valid solution. If all the checks are valid, then the puzzle board is displayed to the user.
+        :return: Returns puzzle board and solution board
+        """
         # generate the valid board
         # self.board = self.generate_random_solution()
         print('valid and solved board, hidden to player')
@@ -295,6 +369,7 @@ class SudokuGUI:
 
         if self.sudoku.sandwich_vertical and self.sudoku.sandwich_horizontal:
             for i in range(0, self.sudoku.SIZE, 2):
+                rand_i = random.randint(0, 8)
                 cell_value1 = self.sudoku.sandwich_vertical[i]
                 call_value2 = self.sudoku.sandwich_horizontal[i]
                 text_color = (0, 0, 200)
@@ -306,6 +381,7 @@ class SudokuGUI:
                 y1 = self.sudoku.SIZE * self.cell_size + self.cell_size // 5
                 x2 = self.sudoku.SIZE * self.cell_size + self.cell_size // 3
                 y2 = i * self.cell_size + self.cell_size // 5
+
                 self.screen.blit(num_text1, (x1, y1))
                 self.screen.blit(num_text2, (x2, y2))
 
@@ -316,24 +392,13 @@ class SudokuGUI:
                     factor_value = (self.sudoku.board[each_cell[0]][each_cell[1]]) * 20
                     cell_rect = pygame.Rect(each_cell[1] * self.cell_size, each_cell[0] * self.cell_size,
                                             self.cell_size, self.cell_size)
-                    # x1 = each_cell[0] * self.cell_size + self.cell_size // 3
-                    # y1 = each_cell[1] * self.cell_size + self.cell_size // 5
                     x1, y1 = cell_rect.center
-                    # pygame.draw.rect(self.screen, (127-factor_value, 199-factor_value, 255-factor_value), cell_rect, 0)
                     if each_cell == new_thermo[0]:
                         pygame.draw.ellipse(self.screen, (150, 150, 150), cell_rect, 2)
                         prev_x1, prev_y1 = cell_rect.center
                     else:
-                        # pygame.draw.rect(self.screen, (200 - factor_value, 199 - factor_value, 255 - factor_value),
-                        #                  cell_rect, 0)
                         pygame.draw.line(self.screen, (100, 100, 100), (prev_x1, prev_y1), (x1, y1), 2)
                         prev_x1, prev_y1 = cell_rect.center
-                    # elif prev_y1 == each_cell[1] and (prev_x1 + 1 == each_cell[0] or prev_x1 - 1 == each_cell[0]):
-                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1, y1-10), (x1, y1+10), 5)
-                    # elif prev_x1 == each_cell[0] and (prev_y1 + 1 == each_cell[1] or prev_y1 - 1 == each_cell[1]):
-                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1-10, y1), (x1+10, y1), 5)
-                    # else:
-                    #     pygame.draw.line(self.screen, (200, 200, 200), (x1-10, y1 - 10), (x1+10, y1 + 10), 5)
 
         self.draw_buttons()
         pygame.display.flip()
