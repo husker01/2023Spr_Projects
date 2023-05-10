@@ -404,7 +404,7 @@ class SudokuGUI:
                         prev_x1, prev_y1 = cell_rect.center
 
         self.draw_buttons()
-        pygame.display.flip()
+        # pygame.display.flip()
 
     def get_cell_from_mouse(self, mouse_x, mouse_y):
         return mouse_y // self.cell_size, mouse_x // self.cell_size
@@ -469,13 +469,14 @@ class SudokuGUI:
                 congratulation_text = self.button_font.render("Congratulations!", True, (0, 0, 0))
                 text_rect = congratulation_text.get_rect(center=(750, 100))
                 self.screen.blit(congratulation_text, text_rect)
-                pygame.display.flip()
+                # pygame.display.flip()
             else:
                 # Display a message on the screen
                 try_again_text = self.button_font.render("Incorrect Solution", True, (200, 0, 0))
                 text_rect = try_again_text.get_rect(center=(750, 100))
                 self.screen.blit(try_again_text, text_rect)
-                pygame.display.flip()
+                # pygame.display.flip()
+            pygame.display.flip()
 
         pygame.quit()
         sys.exit()
@@ -503,7 +504,7 @@ def play_auto():
 
 
 if __name__ == '__main__':
-    opted_choice = int(input("Please choose If you want to play 1: Auto (with number of loops 50) 2: Manual"))
+    opted_choice = int(input("Please choose If you want to play 1: Auto (with number of loops 50) 2: Manual\n"))
     if opted_choice == 1:
         play_auto()
     else:
