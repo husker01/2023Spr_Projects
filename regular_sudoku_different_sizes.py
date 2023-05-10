@@ -4,6 +4,7 @@ import math
 from sudoku_solver import SudokuSolver
 import pygame
 import sys
+import matplotlib.pyplot as plt
 
 
 class Sudoku:
@@ -11,6 +12,7 @@ class Sudoku:
         # Define the size of the board
         self.SIZE = SIZE
         self.level = level
+        self.total_iter = 0
         # initialize the numbers to be removed
         self.empty_cell_coordinate = []
         self.num_to_remove = 0
@@ -24,6 +26,7 @@ class Sudoku:
         else:
             self.sandwich_horizontal, self.sandwich_vertical, self.thermos = [], [], []
         self.puzzle_board, self.solution = self.play_game()
+
     # ------------------------------------------------------------------------------------------
     # generate the complete and valid sudoku board
 
@@ -278,12 +281,12 @@ class Sudoku:
 
         # select game difficulty
 
-        self.select_difficulty(level)
+        self.select_difficulty(self.level)
 
         # ----------------------------------------------------------------------------------------
         # remove numbers to create the puzzle board
 
-        puzzle_board, solutions = SudokuSolver(self.SIZE, self.num_to_remove, copy_board, self.sandwich_horizontal,
+        puzzle_board, solutions, self.total_iter = SudokuSolver(self.SIZE, self.num_to_remove, copy_board, self.sandwich_horizontal,
                                                self.sandwich_vertical, self.thermos)
         for i in range(len(puzzle_board[0])):
             for j in range(len(puzzle_board)):
@@ -478,13 +481,40 @@ class SudokuGUI:
         sys.exit()
 
 
+
+def play_auto():
+    x_list = []
+    y_list = []
+    for i in range(0, 100):
+        SIZE = 9
+        level = random.randint(1, 4)
+        print('Difficulty level ', level)
+        sudoku = Sudoku(SIZE, level)
+        x_list.append(i+1)
+        y_list.append(sudoku.total_iter)
+
+    plt.plot(x_list, y_list)
+    plt.xlabel(' Game number ')
+    plt.ylabel(' Number of iterations ')
+    plt.title(' Analysis graph')
+    plt.show()
+
+
+
+
 if __name__ == '__main__':
-    # select the size of the sudoku game
-    print("Please choose the size of the sudoku (size x size)")
-    SIZE = int(input("Enter Size 4: (4x4) or 9: (9x9) or 16: (16x16):"))
-    print("Please choose the level of difficulty")
-    print("1-Easy (50% cells unknown), 2-Medium (55% cells unknown), 3-Hard (60% cells unknown), "
-          "4-Expert (65% cells unknown), 5-Evil (70% cells unknown)")
-    level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard, 4-Expert, 5-Evil): "))
-    sudoku = Sudoku(SIZE, level)
-    gui = SudokuGUI(sudoku)
+    opted_choice = int(input("Please choose If you want to play 1: Auto (with number of loops 50) 2: Manual"))
+    if opted_choice == 1:
+        play_auto()
+    else:
+        # select the size of the sudoku game
+        print("Please choose the size of the sudoku (size x size)")
+        SIZE = int(input("Enter Size 4: (4x4) or 9: (9x9) or 16: (16x16):"))
+        print("Please choose the level of difficulty")
+        print("1-Easy (50% cells unknown), 2-Medium (55% cells unknown), 3-Hard (60% cells unknown), "
+              "4-Expert (65% cells unknown), 5-Evil (70% cells unknown)")
+        level = int(input("Enter difficulty number (1-easy, 2-medium, 3-hard, 4-Expert, 5-Evil): "))
+        sudoku = Sudoku(SIZE, level)
+        gui = SudokuGUI(sudoku)
+
+

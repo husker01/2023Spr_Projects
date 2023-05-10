@@ -23,3 +23,17 @@
 #### The Big Theta analysis for the solver is Theta(m*m) where m is the number of rows in the board. 
 
 #### The Big O analysis for the board is O(infinity) where the board may produce the puzzle boards infinitely.
+
+## Graphs
+### For 10 games
+ ![Test-10.jpg](Test-10.jpg)
+
+### For 100 games
+#### Eg 1, with more 3 level difficulty
+![Test-100.jpg](Test-100.jpg)
+
+#### Eg 2, with more 4 level difficulty
+![Test-100-with max 4.jpg](Test-100-with%20max%204.jpg)
+
+
+

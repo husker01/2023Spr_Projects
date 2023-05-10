@@ -221,11 +221,13 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
             loop may execute infinitely to solve the boards
         """
         solution_board = []
+        num_iter = 1
         sol, solutions = 0, []
-        # puzzle_board = remove_cell_from_board(board, num_to_remove)
-        # sol, solutions = solver(puzzle_board)
-        # print('solutions found: ', sol)
+        puzzle_board = remove_cell_from_board(board, num_to_remove)
+        sol, solutions = solver(puzzle_board)
+        print('solutions found: ', sol)
         while sol != 1:
+            num_iter += 1
             puzzle_board = remove_cell_from_board(board, num_to_remove)
             sol, solutions = solver(puzzle_board)
             print('solutions remaining to be solved: ', sol)
@@ -234,7 +236,7 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
             if num % SIZE == 0:
                 solution_board.append([])
             solution_board[-1].append(int(item.split(' ')[1]))
-        if validate_sandwich(solution_board) and validate_thermos(solution_board):
-            return puzzle_board, solution_board
+        if (not(sw_vertical and sw_horizontal)) or (validate_sandwich(solution_board) and validate_thermos(solution_board)):
+            return puzzle_board, solution_board, num_iter
 
     return generate_puzzle()
