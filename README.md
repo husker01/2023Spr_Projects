@@ -36,4 +36,10 @@
 ![Test-100-with max 4.jpg](Test-100-with%20max%204.jpg)
 
 
+## Summary of Work
+#### Luwei Li : Implemented first part of the project i.e., build the generator and SAT solver for the sudoku that includes for both regular size and different size. Added GUI for the sudoku. 
+
+#### Abhisha: Implemented second part which includes adding the sandwich and thermo variants as well as analysis. Worked on performance improvement and Integrated the variants both in solver as well as GUI.
+
+
 
