@@ -1,4 +1,4 @@
-import math
+# Reference from https://rhettinger.github.io/einstein.html#essential-utilities-for-humanization
 
 import pycosat
 from itertools import combinations, product

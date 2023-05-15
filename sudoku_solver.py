@@ -1,3 +1,4 @@
+# Referred from https://rhettinger.github.io/einstein.html#code-for-the-sudoku-solver
 import copy
 import itertools
 from sat_utils import *

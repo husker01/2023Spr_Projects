@@ -41,5 +41,8 @@
 
 #### Abhisha: Implemented second part which includes adding the sandwich and thermo variants as well as analysis. Worked on performance improvement and Integrated the variants both in solver as well as GUI.
 
+## REFERENCES
+#### 1. SAT Solver and SAT Utils were referred from: https://rhettinger.github.io/einstein.html#sudoku-puzzles
+
 
 
