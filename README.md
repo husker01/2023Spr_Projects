@@ -17,7 +17,7 @@
 #### For solver, we are using the SAT solver with CNF rules. The sat solver works incredibly faster for sudoku since the rules of sudoku can be easily converted to CNF rules. One of the difficulty we faced is to integrate the sandwich rules into the SAT solver. As a workaround, we have different method which checks for sandwich rules after the SAT solver outputs the solved board. 
 
 
-### Runtime complexity Analysis
+### Runtime Complexity Analysis
 
 #### Sudoku Board Generator Analysis
 
