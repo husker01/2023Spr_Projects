@@ -45,9 +45,9 @@ class Sudoku:
         elif level == 3:
             self.num_to_remove = int(0.6 * (self.SIZE ** 2))
         elif level == 4:
-            self.num_to_remove = int(0.65 * (self.SIZE ** 2))
+            self.num_to_remove = int(0.7 * (self.SIZE ** 2))
         elif level == 5:
-            self.num_to_remove = int(0.67 * (self.SIZE ** 2))
+            self.num_to_remove = int(0.72 * (self.SIZE ** 2))
         return self.num_to_remove
 
     # print the board to the player

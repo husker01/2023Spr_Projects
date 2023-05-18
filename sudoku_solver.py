@@ -83,6 +83,12 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         :param board: The solved board
         :param num_to_remove: Number of cells to be removed
         :return: The puzzle board
+
+        Big O analysis:
+            The Big O can be calculated as O(p * q) where p is the number of cells to empty and q is the number of
+            iteration to find empty cell. The worst case is, for difficulty 5 where 63 cells are emptied, the while loop
+            may iterate through more than half of the numbers to remove i.e. > p/2.
+            Thus O(p^2)
         """
         new_board = copy.deepcopy(board)
         for i in range(num_to_remove):
@@ -112,15 +118,7 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         for item in flatten_board:
             flatten_board_chr += mapping[item]
         cnf = []
-        variables = {}
 
-        # Create Boolean variables for each cell
-        # cells = [[solver.new_var() for j in range(SIZE)] for i in range(SIZE)]
-        # poss_values = generate_possible_values(board, SIZE, points)
-        # for value in poss_values:
-        #     value2 = points[((value[0] + 1)*(value[1] + 1))-1]
-        # for point in poss_values:
-        #     cnf += one_of(comb(point, value) for value in poss_values[point])
         # each point assigned exactly one value
         for point in points:
             cnf += one_of(comb(point, value) for value in values)
@@ -134,39 +132,24 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         for known in str_to_facts(flatten_board_chr):
             cnf += basic_fact(known)
 
-        # add CNF rules for each group of thermos cells
-        # for thermos_cell in thermos:
-        #     for i in range(len(thermos_cell)):
-        #         for j in range(i + 1, len(thermos_cell)):
-        #             clause = []
-        #             for k in range(len(thermos_cell[i])):
-        #                 if thermos_cell[i][k] < thermos_cell[j][k]:
-        #                     clause.append("~" + points[((thermos_cell[i][k] + 1)*(thermos_cell[j][k] + 1))-1])
-        #                 else:
-        #                     clause.append("~" + points[(((thermos_cell[j][k] + 1) * (thermos_cell[i][k] + 1)) - 1)])
-        #
-        #             cnf.append(clause)
-
-        num_solutions = len(solve_all(cnf))
         solutions = solve_all(cnf)
-        return num_solutions, solutions
-
-    def get_sum_clause(variables, sum_value):
-        # This function returns a list of clauses that ensure the sum of the given variables is equal to sum_value.
-
-        n = len(variables)
-        clauses = []
-
-        # Ensure that the sum is greater than or equal to sum_value.
-        for i in range(1, n):
-            for subset in itertools.combinations(variables, i):
-                clause = list
+        num_solutions = len(solutions)
+        final_sols = []
+        if num_solutions > 1 and sw_vertical and sw_horizontal:
+            for sols in solutions:
+                if validate_thermos(sols) and validate_sandwich(sols):
+                    final_sols.append(sols)
+        else:
+            final_sols = solutions.copy()
+        return len(final_sols), final_sols
 
     def validate_sandwich(sand_board):
         """
-        The method to validate the sandwich hints for the solved board
+        The method to validate the sandwich hints for the solution boards
         :param sand_board: The solution board
         :return: True if the condition satisfies else False
+
+        Big O Analysis is O(m*n) where m is the number of rows and n is the number of columns
         """
         horiz_list, vert_list = [], []
         for i in range(0, SIZE):
@@ -174,19 +157,19 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
             is_horiz_start = False
             is_vert_start = False
             for j in range(0, SIZE):
-                if (sand_board[i][j] == 1 or sand_board[i][j] == SIZE) and not is_horiz_start:
+                if (int(sand_board[(i*SIZE) + j][3:]) == 1 or int(sand_board[(i*SIZE) + j][3:]) == SIZE) and not is_horiz_start:
                     is_horiz_start = True
-                elif (sand_board[i][j] == 1 or sand_board[i][j] == SIZE) and is_horiz_start:
+                elif (int(sand_board[(i*SIZE) + j][3:]) == 1 or int(sand_board[(i*SIZE) + j][3:]) == SIZE) and is_horiz_start:
                     is_horiz_start = False
                 elif is_horiz_start:
-                    horiz_sum += sand_board[i][j]
+                    horiz_sum += int(sand_board[(i*SIZE) + j][3:])
 
-                if (sand_board[j][i] == 1 or sand_board[j][i] == SIZE) and not is_vert_start:
+                if (int(sand_board[(SIZE * j) + i][3:]) == 1 or int(sand_board[(SIZE * j) + i][3:]) == SIZE) and not is_vert_start:
                     is_vert_start = True
-                elif (sand_board[j][i] == 1 or sand_board[j][i] == SIZE) and is_vert_start:
+                elif (int(sand_board[(SIZE * j) + i][3:]) == 1 or int(sand_board[(SIZE * j) + i][3:]) == SIZE) and is_vert_start:
                     is_vert_start = False
                 elif is_vert_start:
-                    vert_sum += sand_board[j][i]
+                    vert_sum += int(sand_board[(SIZE * j) + i][3:])
             horiz_list.append(horiz_sum)
             vert_list.append(vert_sum)
 
@@ -199,14 +182,16 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
         The method to validate thermos hints.
         :param thermo_board: The solution board
         :return: True if the condition satisfies else False
+
+        Big O Analysis:  m + n where m is the size of first thermos and n is size of 2nd thermos
         """
         prev_value = 0
         for new_thermo in thermos:
             for each_cell in new_thermo:
-                if prev_value and prev_value > thermo_board[each_cell[0]][each_cell[1]]:
+                if prev_value and prev_value > int(thermo_board[(each_cell[0] * SIZE) + (each_cell[1])][3:]):
                     return False
                 elif new_thermo[0] == each_cell:
-                    prev_value = thermo_board[each_cell[0]][each_cell[1]]
+                    prev_value = int(thermo_board[(each_cell[0] * SIZE) + (each_cell[1])][3:])
         return True
 
     def generate_puzzle():
@@ -237,7 +222,6 @@ def SudokuSolver(SIZE, num_to_remove, board, sw_horizontal, sw_vertical, thermos
             if num % SIZE == 0:
                 solution_board.append([])
             solution_board[-1].append(int(item.split(' ')[1]))
-        if (not(sw_vertical and sw_horizontal)) or (validate_sandwich(solution_board) and validate_thermos(solution_board)):
-            return puzzle_board, solution_board, num_iter
+        return puzzle_board, solution_board, num_iter
 
     return generate_puzzle()
